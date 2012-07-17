@@ -1,0 +1,86 @@
+#!/bin/sh
+#
+# Build under Linux or Mac OS/X
+
+VERSION=`grep AC_INIT configure.ac | sed -e 's/.*\[\([0-9.]*\)\].*/\1/'`
+BUILD=`uname -s`
+ARCH=`uname -m`
+if test "$ARCH" = i686
+then
+	ARCH=i386
+elif test "$ARCH" = "Power Macintosh"
+then
+	ARCH=ppc
+fi
+
+LINUX=false
+MAC=false
+
+if test "$BUILD" = "Darwin"
+then
+	MAC=true
+	MACHINE=darwin
+else
+	LINUX=true
+	MACHINE=linux
+
+	# Test that the MS-Windows project defines the proper version
+	# (we could use configure under Linux, but then we would not have the files in SVN)
+	for v in `grep PACKAGE_VERSION win32/odbcpp.vc8.vcproj`
+	do
+		package_version=`echo $v | sed -e 's/.*quot;\([0-9]\+\.[0-9]\+\)..quot.*/\1/'`
+		if test "$package_version" != "$VERSION"
+		then
+			echo "odbcpp:error: version $package_version in win32/odbcpp.vc8.vcproj is not equal to the official version: $VERSION."
+			echo "odbcpp:error: please fix before shipping and try ./run again."
+			exit 1;
+		fi
+	done
+
+	nsi_version=`grep OutFile win32/odbcpp.nsi | sed -e 's/.*\([0-9]\+\.[0-9]\+\).*/\1/'`
+	if test "$nsi_version" != "$VERSION"
+	then
+		echo "odbcpp:error: version $nsi_version in win32/odbcpp.nsi is not equal to the official version: $VERSION."
+		echo "odbcpp:error: please fix before shipping and try ./run again."
+		exit 1;
+	fi
+
+	installer_version=`grep 'Outputs="' win32/Installer.vc8.vcproj | sed -e 's/.*\([0-9]\+\.[0-9]\+\).*/\1/'`
+	if test "$installer_version" != "$VERSION"
+	then
+		echo "odbcpp:error: version $installer_version in win32/Installer.vc8.vcproj is not equal to the official version: $VERSION."
+		echo "odbcpp:error: please fix before shipping and try ./run again."
+		exit 1;
+	fi
+fi
+
+
+
+echo "Building odbcpp-$VERSION-$MACHINE-$ARCH"
+
+if $LINUX
+then
+	# At this time, the Mac build fails if I do the autoreconf directly on the Mac
+	./autogen.sh || exit 1
+fi
+rm -rf BUILD
+mkdir BUILD
+cd BUILD
+../configure --prefix=/usr --enable-tests || exit 1
+make || { echo "make failed"; exit 1; }
+if $LINUX
+then
+	make dist-bzip2
+	make dist-zip
+fi
+mkdir ROOT
+make DESTDIR=`pwd`/ROOT install || { echo "make install failed"; exit 1; }
+cd ROOT
+tar cjf ../odbcpp-$VERSION-$MACHINE-$ARCH.tar.bz2 usr
+
+cd ../..
+if $LINUX
+then
+	doxygen BUILD/doc/odbcpp.doxy
+fi
+

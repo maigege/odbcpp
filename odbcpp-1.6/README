@@ -1,0 +1,16 @@
+
+To generate the documentation with doxygen, use:
+
+   doxygen doc/odbcpp.doxy
+
+If necessary, copy the odbcpp.doxy file from your build environment.
+(in case you ran the configure script in a sub-folder)
+
+Under MS-Windows, install Doxygen and if necessary fix the vcproj
+project to point at the right place then Build the documentation.
+
+The documentation is also available online at:
+
+   http://www.m2osw.com/odbcpp_docs
+
+You may want to look at the run script.

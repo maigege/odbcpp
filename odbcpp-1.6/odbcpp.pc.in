@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: odbcpp library
+Description: C++ library to access odbc by Made to Order Software Corporation
+Version: @VERSION@
+Libs: -L${libdir} -lodbcpp -lodbc
+Cflags: -I${includedir}

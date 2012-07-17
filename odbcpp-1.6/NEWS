@@ -1,0 +1,5 @@
+
+Version 1.6 includes a new test to show that multiple statements can be used
+in a loop without any problem (but you need to close the cursor of statements
+that you are to reuse over and over again.)
+

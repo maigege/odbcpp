@@ -1,0 +1,6 @@
+"Alexis Wilke" <alexis_wilke@sourceforge.net>
+
+  08/2008  John Zambuto found a problem with VARCHAR, fixed record.cpp
+  06/2008  Added new features to make it really functional.
+  05/2008  Created this library.
+
